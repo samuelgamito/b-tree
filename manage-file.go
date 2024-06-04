@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	DATABASE_FILE_NAME = "database.bin"
+	DatabaseFileName = "database.bin"
 )
 
 
@@ -17,7 +17,7 @@ func getDatabaseFile() (*os.File, error)  {
 		err error
 	)
 	
-	f, err = os.OpenFile(DATABASE_FILE_NAME, os.O_RDWR|os.O_CREATE, 0644)
+	f, err = os.OpenFile(DatabaseFileName, os.O_RDWR|os.O_CREATE, 0644)
 	
 
 	if err != nil {
