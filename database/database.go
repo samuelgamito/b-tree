@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"encoding/binary"
@@ -10,8 +10,7 @@ import (
 	"strings"
 )
 
-type DBActions struct{
-	
+type DBActions struct {
 }
 
 func (DBActions) Add(id string, data string, f *os.File) error {
@@ -39,8 +38,8 @@ func (DBActions) Add(id string, data string, f *os.File) error {
 	}
 	if err := binary.Write(f, binary.LittleEndian, int32(0)); err != nil {
 		log.Fatalf("Failed writing string size to file: %s", err)
-	} 
-	if err = binary.Write(f,binary.LittleEndian, dataBytes); err != nil {
+	}
+	if err = binary.Write(f, binary.LittleEndian, dataBytes); err != nil {
 		log.Fatalf("Failed writing string to file: %s", err)
 	}
 	if err := binary.Write(f, binary.LittleEndian, int32(nextData)); err != nil {
@@ -51,16 +50,17 @@ func (DBActions) Add(id string, data string, f *os.File) error {
 }
 
 func (DBActions) Get(pos string, f *os.File) error {
-	var stringSize int32
-	var deletedReg int32
+	var (
+		stringSize int32
+		deletedReg int32
+	)
 
-	posInt,_ := strconv.Atoi(strings.ReplaceAll(pos, " ",""))
+	posInt, _ := strconv.Atoi(strings.ReplaceAll(pos, " ", ""))
 
 	fmt.Println(posInt)
 	if _, err := f.Seek(int64(posInt), io.SeekStart); err != nil {
 		log.Fatal(err)
 	}
-
 
 	if err := binary.Read(f, binary.LittleEndian, &stringSize); err != nil {
 		log.Fatal(err)
@@ -74,7 +74,7 @@ func (DBActions) Get(pos string, f *os.File) error {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%s, is deleted? %d\n",string(stringBytes), deletedReg)
+	fmt.Printf("%s, is deleted? %d\n", string(stringBytes), deletedReg)
 
 	return nil
 }

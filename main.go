@@ -1,6 +1,8 @@
 package main
 
 import (
+	"b-tree/database"
+	"b-tree/disk"
 	"fmt"
 	"io"
 	"log"
@@ -11,27 +13,28 @@ import (
 	"golang.org/x/term"
 )
 
-func main(){
-	fDatabase, _ := getDatabaseFile()
+func main() {
+	fDatabaseFile, _ := disk.GetDatabaseFile()
+	dIndexDatabaseFile, _ := disk.GetIndexFile()
 
-	defer closeAll(fDatabase)
+	defer disk.CloseAll(fDatabaseFile, dIndexDatabaseFile)
 
-	if err := chat(fDatabase); err != nil {
+	if err := chat(fDatabaseFile); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func getCommand(line string) string{
-	return strings.ReplaceAll(strings.Split(line, ",")[0], " ","")
+func getCommand(line string) string {
+	return strings.ReplaceAll(strings.Split(line, ",")[0], " ", "")
 }
 
 func getCommandParams(line string, f *os.File) []reflect.Value {
 
-	paramsReflected := []reflect.Value{}
+	var paramsReflected []reflect.Value
 
 	params := strings.Split(line, ",")[1:]
 
-	for _, p := range params{
+	for _, p := range params {
 		paramsReflected = append(paramsReflected, reflect.ValueOf(p))
 	}
 
@@ -41,8 +44,7 @@ func getCommandParams(line string, f *os.File) []reflect.Value {
 }
 
 func chat(fDatabase *os.File) error {
-	dbActions := DBActions{}
-
+	dbActions := database.DBActions{}
 
 	if !term.IsTerminal(0) || !term.IsTerminal(1) {
 		return fmt.Errorf("stdin/stdout should be terminal")
@@ -76,17 +78,14 @@ func chat(fDatabase *os.File) error {
 
 		cmd := getCommand(line)
 
-	  action := reflect.ValueOf(dbActions).MethodByName(cmd)
+		action := reflect.ValueOf(dbActions).MethodByName(cmd)
 
 		if action.IsValid() {
-			
+
 			action.Call(getCommandParams(line, fDatabase))
-		}else{
+		} else {
 			fmt.Fprintln(term, databaseResponsePrefix, cmd, " is not a valid command")
 		}
 
-
-
-		
 	}
 }
