@@ -25,25 +25,23 @@ func (DBActions) Add(id string, data string, f *os.File) error {
 		panic("error to pointing to the end")
 	}
 
-	cursorPosition, err := f.Seek(0, io.SeekCurrent)
+	_, err = f.Seek(0, io.SeekCurrent)
 
 	if err != nil {
-		panic("not able to get the cursor")
+		log.Fatal("Not able to get the cursor")
 	}
-
-	fmt.Println(cursorPosition)
 
 	if err := binary.Write(f, binary.LittleEndian, int32(stringSize)); err != nil {
-		log.Fatalf("Failed writing string size to file: %s", err)
+		log.Fatalf("Failed writing string size to file: %s\n", err)
 	}
 	if err := binary.Write(f, binary.LittleEndian, int32(0)); err != nil {
-		log.Fatalf("Failed writing string size to file: %s", err)
+		log.Fatalf("Failed writing string size to file: %s\n", err)
 	}
 	if err = binary.Write(f, binary.LittleEndian, dataBytes); err != nil {
-		log.Fatalf("Failed writing string to file: %s", err)
+		log.Fatalf("Failed writing string to file: %s\n", err)
 	}
 	if err := binary.Write(f, binary.LittleEndian, int32(nextData)); err != nil {
-		log.Fatalf("Failed writing string size to file: %s", err)
+		log.Fatalf("Failed writing string size to file: %s\n", err)
 	}
 
 	return nil
